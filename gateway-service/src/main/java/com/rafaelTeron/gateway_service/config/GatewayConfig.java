@@ -26,7 +26,12 @@ public class GatewayConfig {
             .route("app-quiz", r -> r.path("/app-quiz/**") 
                 .filters(f -> f.filter((exchange, chain) -> {
 
+                	String path = exchange.getRequest().getURI().getPath();
+                    if (path.equals("/app-quiz/quiz/players/register")) {
+                        return chain.filter(exchange);
+                    }
                     String authToken = exchange.getRequest().getHeaders().getFirst("Authorization");
+                    
                     return validateToken(authToken)
                             .flatMap(isValid -> {
                                 if (isValid) {

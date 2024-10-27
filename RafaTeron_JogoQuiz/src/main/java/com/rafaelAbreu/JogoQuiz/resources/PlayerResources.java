@@ -42,7 +42,7 @@ public class PlayerResources {
     }
 
     
-	@PostMapping(value = "/quiz/players/save")
+	@PostMapping(value = "/quiz/players/register")
 	public ResponseEntity<Player> insert(@RequestBody Player objPlayer) {
 		Player obj = playerService.insert(objPlayer);
 		return ResponseEntity.ok().body(obj);
