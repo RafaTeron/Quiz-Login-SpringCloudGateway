@@ -11,18 +11,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rafaelAbreu.JogoQuiz.entities.Player;
 import com.rafaelAbreu.JogoQuiz.exceptions.ErroScoreException;
+import com.rafaelAbreu.JogoQuiz.repositories.PlayerRepository;
 import com.rafaelAbreu.JogoQuiz.services.PlayerService;
 
 @RestController
-@RequestMapping(value = "/rafateron-jogoquiz")
+@RequestMapping(value = "/app-quiz")
 public class PlayerResources {
     
     @Autowired
     private PlayerService playerService;
+    
+    @Autowired
+    private PlayerRepository playerRepository;
     
     @GetMapping(value = "/quiz/players")
     public ResponseEntity<List<Player>> findAll(){
@@ -78,6 +83,13 @@ public class PlayerResources {
     public ResponseEntity<Boolean> verificarLimitePerguntasRespondidas(@PathVariable Long id) {
         boolean limiteAtingido = playerService.limiteDeQuestionsRespondidas(id);
         return ResponseEntity.ok(limiteAtingido);
+    }
+    
+    @GetMapping("/quiz/search")
+    public ResponseEntity<Player> findByUsuario(@RequestParam String usuario) {
+        Player optionalPlayer = playerRepository.findByUsuario(usuario);
+
+        return ResponseEntity.ok(optionalPlayer);
     }
     
 }
