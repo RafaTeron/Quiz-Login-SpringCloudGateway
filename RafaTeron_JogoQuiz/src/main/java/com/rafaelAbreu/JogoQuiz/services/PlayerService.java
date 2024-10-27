@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.rafaelAbreu.JogoQuiz.entities.Answer;
@@ -17,6 +18,9 @@ import com.rafaelAbreu.JogoQuiz.repositories.QuestionRepository;
 
 @Service
 public class PlayerService {
+	
+	@Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
 	private PlayerRepository playerRepository;
@@ -41,8 +45,10 @@ public class PlayerService {
 	}
 
 	public Player insert(Player player) {
+		player.setPassword(passwordEncoder.encode(player.getPassword()));
 		return playerRepository.save(player);
 	}
+
 
 	public void deletePlayer(Long id) {
 		playerRepository.deleteById(id);
