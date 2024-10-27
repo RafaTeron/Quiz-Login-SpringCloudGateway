@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class Player {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rafaelAbreu.LoginJWT.dto.LoginRequestDTO;
 import com.rafaelAbreu.LoginJWT.dto.RegisterRequestDTO;
 import com.rafaelAbreu.LoginJWT.dto.ResponseDTO;
-import com.rafaelAbreu.LoginJWT.entities.User;
+import com.rafaelAbreu.LoginJWT.entities.Player;
 import com.rafaelAbreu.LoginJWT.infra.security.TokenService;
 import com.rafaelAbreu.LoginJWT.repositories.UserRepository;
 
@@ -30,7 +30,7 @@ public class AuthResource {
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginRequestDTO body){
-        User user = this.repository.findByUsuario(body.usuario()).orElseThrow(() -> new RuntimeException("User not found"));
+        Player user = this.repository.findByUsuario(body.usuario()).orElseThrow(() -> new RuntimeException("User not found"));
         if(passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = this.tokenService.generateToken(user);
             return ResponseEntity.ok(new ResponseDTO(user.getUsuario(), token));
@@ -41,10 +41,10 @@ public class AuthResource {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterRequestDTO body){
-        Optional<User> user = this.repository.findByUsuario(body.usuario());
+        Optional<Player> user = this.repository.findByUsuario(body.usuario());
 
         if(user.isEmpty()) {
-            User newUser = new User();
+            Player newUser = new Player();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setUsuario(body.usuario());
             newUser.setName(body.name());

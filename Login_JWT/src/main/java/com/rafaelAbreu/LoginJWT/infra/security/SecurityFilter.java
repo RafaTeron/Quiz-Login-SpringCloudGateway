@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.rafaelAbreu.LoginJWT.entities.User;
+import com.rafaelAbreu.LoginJWT.entities.Player;
 import com.rafaelAbreu.LoginJWT.repositories.UserRepository;
 
 import jakarta.servlet.FilterChain;
@@ -33,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         var login = tokenService.validateToken(token);
 
         if (login != null) {
-            User user = userRepository.findByUsuario(login).orElseThrow(() -> new RuntimeException("User Not Found"));
+            Player user = userRepository.findByUsuario(login).orElseThrow(() -> new RuntimeException("User Not Found"));
             var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
             var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
