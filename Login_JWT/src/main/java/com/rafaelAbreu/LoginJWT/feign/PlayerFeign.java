@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.rafaelAbreu.LoginJWT.entities.Player;
 
 @Component
-@FeignClient(name = "rafateron-jogoquiz", path = "/rafateron-jogoquiz")
+@FeignClient(name = "app-quiz", path = "/app-quiz")
 public interface PlayerFeign {
 	
 	@GetMapping(value = "/quiz/search")

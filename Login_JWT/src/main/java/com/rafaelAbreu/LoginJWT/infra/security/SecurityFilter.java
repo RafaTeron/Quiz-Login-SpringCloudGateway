@@ -1,17 +1,13 @@
 package com.rafaelAbreu.LoginJWT.infra.security;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.rafaelAbreu.LoginJWT.entities.Player;
-import com.rafaelAbreu.LoginJWT.repositories.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,30 +16,36 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
-
-    @Autowired
+    
+	@Autowired
     TokenService tokenService;
-
+    
     @Autowired
-    UserRepository userRepository;
+    CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
-        var login = tokenService.validateToken(token);
+        if (token != null) {
+            try {
+                var login = tokenService.validateToken(token);
+                UserDetails user = customUserDetailsService.loadUserByUsername(login);
 
-        if (login != null) {
-            Player user = userRepository.findByUsuario(login).orElseThrow(() -> new RuntimeException("User Not Found"));
-            var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (RuntimeException e) {
+                
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                return; 
+            }
         }
         filterChain.doFilter(request, response);
     }
 
-    private String recoverToken(HttpServletRequest request) {
+    private String recoverToken(HttpServletRequest request){
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
+        if(authHeader == null) return null;
         return authHeader.replace("Bearer ", "");
     }
+
 }

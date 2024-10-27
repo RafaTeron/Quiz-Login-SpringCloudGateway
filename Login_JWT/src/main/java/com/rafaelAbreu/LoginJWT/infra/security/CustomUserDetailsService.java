@@ -1,24 +1,28 @@
 package com.rafaelAbreu.LoginJWT.infra.security;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.rafaelAbreu.LoginJWT.entities.Player;
-import com.rafaelAbreu.LoginJWT.repositories.UserRepository;
+import com.rafaelAbreu.LoginJWT.feign.PlayerFeign;
 
-@Component
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
-	private UserRepository repository;
+	private PlayerFeign playerFeign;
 
 	@Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Player user = this.repository.findByUsuario(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new org.springframework.security.core.userdetails.User(user.getUsuario(), user.getPassword(), new ArrayList<>());
-    }
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	    ResponseEntity<Player> response = playerFeign.findByUsuario(username); 
+	    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+	        return response.getBody(); 
+	    } else {
+	        throw new UsernameNotFoundException("User not found");
+	    }
+	}
 }
