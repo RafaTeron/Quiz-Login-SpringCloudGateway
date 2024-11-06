@@ -35,9 +35,10 @@ public class AuthenticationController {
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.usuario(), data.password());
             var auth = this.authenticationManager.authenticate(usernamePassword);
-            var token = tokenService.generateToken((Player) auth.getPrincipal());
+            var player = (Player) auth.getPrincipal();
+            var token = tokenService.generateToken(player);
 
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponseDTO(token, player.getId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
         }
