@@ -12,15 +12,16 @@ import com.rafaelAbreu.JogoQuiz.entities.Answer;
 import com.rafaelAbreu.JogoQuiz.entities.Player;
 import com.rafaelAbreu.JogoQuiz.entities.Question;
 import com.rafaelAbreu.JogoQuiz.exceptions.ErroScoreException;
+import com.rafaelAbreu.JogoQuiz.exceptions.UsuarioExistenteException;
 import com.rafaelAbreu.JogoQuiz.repositories.AnswerRepository;
 import com.rafaelAbreu.JogoQuiz.repositories.PlayerRepository;
 import com.rafaelAbreu.JogoQuiz.repositories.QuestionRepository;
 
 @Service
 public class PlayerService {
-	
+
 	@Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+	private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
 	private PlayerRepository playerRepository;
@@ -45,10 +46,20 @@ public class PlayerService {
 	}
 
 	public Player insert(Player player) {
+		if (playerRepository.existsByUsuario(player.getUsuario())) {
+			throw new UsuarioExistenteException("Usuário já existe!");
+		}
+
 		player.setPassword(passwordEncoder.encode(player.getPassword()));
+		
+		List<Question> listaDePerguntas = new ArrayList<>();
+		Question questionAleatoria = questionRepository.encontrarQuestionAleatoria();
+		listaDePerguntas.add(questionAleatoria);
+
+		player.setQuestion(listaDePerguntas);
+
 		return playerRepository.save(player);
 	}
-
 
 	public void deletePlayer(Long id) {
 		playerRepository.deleteById(id);
@@ -120,7 +131,6 @@ public class PlayerService {
 
 		List<String> questionRespondidas = player.getQuestionRespondidas();
 
-
 		if (questionRespondidas == null || questionRespondidas.size() < 10) {
 			return true;
 		}
@@ -129,7 +139,7 @@ public class PlayerService {
 	}
 
 	public void somarScore(Player player) throws ErroScoreException {
-		if (player.getPointScore() < 100 ) {
+		if (player.getPointScore() < 100) {
 			player.setPointScore(player.getPointScore() + 10);
 
 			playerRepository.save(player);

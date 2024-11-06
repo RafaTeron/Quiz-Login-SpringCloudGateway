@@ -27,7 +27,7 @@ public class GatewayConfig {
                 .filters(f -> f.filter((exchange, chain) -> {
 
                 	String path = exchange.getRequest().getURI().getPath();
-                    if (path.equals("/app-quiz/quiz/players/register")) {
+                    if (path.equals("/app-quiz/quiz/players/register" )) {
                         return chain.filter(exchange);
                     }
                     String authToken = exchange.getRequest().getHeaders().getFirst("Authorization");

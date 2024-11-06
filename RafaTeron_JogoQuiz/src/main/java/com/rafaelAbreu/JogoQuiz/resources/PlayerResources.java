@@ -3,6 +3,7 @@ package com.rafaelAbreu.JogoQuiz.resources;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rafaelAbreu.JogoQuiz.entities.Player;
 import com.rafaelAbreu.JogoQuiz.exceptions.ErroScoreException;
+import com.rafaelAbreu.JogoQuiz.exceptions.ErrorResponse;
+import com.rafaelAbreu.JogoQuiz.exceptions.UsuarioExistenteException;
 import com.rafaelAbreu.JogoQuiz.repositories.PlayerRepository;
 import com.rafaelAbreu.JogoQuiz.services.PlayerService;
 
@@ -43,9 +46,13 @@ public class PlayerResources {
 
     
 	@PostMapping(value = "/quiz/players/register")
-	public ResponseEntity<Player> insert(@RequestBody Player objPlayer) {
-		Player obj = playerService.insert(objPlayer);
-		return ResponseEntity.ok().body(obj);
+	public ResponseEntity<?> insert(@RequestBody Player objPlayer)  throws UsuarioExistenteException {
+		try {
+			Player obj = playerService.insert(objPlayer);
+			return ResponseEntity.ok().body(obj);
+		} catch (UsuarioExistenteException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
+	    }
 	}
 
     @DeleteMapping(value = "/quiz/players/{id}")
