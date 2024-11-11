@@ -22,7 +22,7 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
             .route("LoginJWT", r -> r.path("/auth/**")
-                .uri("http://localhost:8002"))
+                .uri("http://login-service:8002"))
             .route("app-quiz", r -> r.path("/app-quiz/**") 
                 .filters(f -> f.filter((exchange, chain) -> {
 
@@ -43,7 +43,7 @@ public class GatewayConfig {
                                 }
                             });
                 }))
-                .uri("http://localhost:8001")) 
+                .uri("http://quiz-service:8001")) 
             .build();
     }
 
@@ -51,7 +51,7 @@ public class GatewayConfig {
         if (token != null && token.startsWith("Bearer ")) {
             return webClientBuilder.build()
                 .get()
-                .uri("http://localhost:8002/auth/validate-token")
+                .uri("http://login-service:8002/auth/validate-token")
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(Boolean.class);

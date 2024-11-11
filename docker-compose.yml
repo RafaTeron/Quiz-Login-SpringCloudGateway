@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  eureka-service:
+    build:
+      context: ./eureka-service
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    ports:
+      - "8765:8765"
+    depends_on:
+      - eureka-service
+    environment:
+      - EUREKA_SERVER=http://eureka-service:8761/eureka
+    networks:
+      - app-network
+
+  login-service:
+    build:
+      context: ./Login_JWT
+    ports:
+      - "8002:8002"
+    depends_on:
+      - eureka-service
+    environment:
+      - EUREKA_SERVER=http://eureka-service:8761/eureka
+    networks:
+      - app-network
+
+  quiz-service:
+    build:
+      context: ./RafaTeron_JogoQuiz
+    ports:
+      - "8001:8001"
+    depends_on:
+      - eureka-service
+      - postgres
+    environment:
+      - spring.datasource.url=jdbc:postgresql://postgres:5432/springboot_jogoquiz
+      - spring.datasource.username=postgres
+      - spring.datasource.password=5718293
+      - EUREKA_SERVER=http://eureka-service:8761/eureka
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: springboot_jogoquiz
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 5718293
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d springboot_jogoquiz"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
